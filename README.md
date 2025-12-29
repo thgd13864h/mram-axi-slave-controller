@@ -1,3 +1,23 @@
+Performance Summary
+=======================
+This fork includes cycle-level performance estimates derived directly from RTL parameters.
+
+- Clock: 100 MHz, AXI 64-bit
+- MRAM write delay: write_delay_config = 8
+- MRAM read latency: READ_LAT = 2
+
+Write bandwidth ≈ 80 MB/s  
+Read bandwidth ≈ 267 MB/s  
+
+A 4-beat write + 4-beat read MCU transaction transfers 64 bytes in ~52 cycles
+(~520 ns), resulting in an effective payload bandwidth of ~123 MB/s.
+
+Detailed derivations and example calculations are provided in
+`Fork_Performance.md`.
+
+
+
+
 Technical Article:  
 Designing an AMBA-Compatible MRAM AXI Slave Controller for Modern SoCs  
 https://medium.com/@ace.lin0121/designing-an-amba-compatible-mram-axi-slave-controller-for-modern-socs-3cade20bce41
