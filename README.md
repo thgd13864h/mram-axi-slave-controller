@@ -1,5 +1,5 @@
 Performance Summary
-=======================
+-------------------
 This fork includes cycle-level performance estimates derived directly from RTL parameters.
 
 - Clock: 100 MHz, AXI 64-bit
