@@ -1,112 +1,114 @@
-Performance Summary
-===================
-This fork includes cycle-level performance estimates derived directly from RTL parameters.
+# MRAM AXI Slave Controller – Architectural Evaluation Fork
 
-- Clock: 100 MHz, AXI 64-bit
-- MRAM write delay: write_delay_config = 8
-- MRAM read latency: READ_LAT = 2
+## Overview
 
-Write bandwidth ≈ 80 MB/s  
-Read bandwidth ≈ 267 MB/s  
+This repository is an independent fork of the original **mram-axi-slave-controller** project.  
+It is used for **early-stage architectural evaluation of MRAM-based AXI slave designs** in modern SoCs, with a focus on latency, bandwidth, and transaction-level trade-offs derived directly from RTL parameters.
 
-A 4-beat write + 4-beat read MCU transaction transfers 64 bytes in ~52 cycles
-(~520 ns), resulting in an effective payload bandwidth of ~123 MB/s.
+Rather than re-implementing functionality, this fork extends the original work with **cycle-level performance analysis, architectural documentation, and reproducible evaluation examples** that support engineering decision-making prior to full-system simulation or silicon implementation.
 
-Detailed derivations and example calculations are provided in
-`Fork_Performance.md`.
+---
 
-Technical Article:  
-==================
-Designing an AMBA-Compatible MRAM AXI Slave Controller for Modern SoCs  
-https://medium.com/@ace.lin0121/designing-an-amba-compatible-mram-axi-slave-controller-for-modern-socs-3cade20bce41
+## Why this fork exists
 
-MRAM AXI Slave Controller
-=========================
+During SoC architecture definition, engineers frequently need to compare memory options and configuration points under realistic assumptions, before verification environments or physical measurements are available.
 
-This repository provides documentation and a reference SystemVerilog implementation
-related to an MRAM-based AXI slave controller and its role in SoC-level architecture.
+This fork exists to support that process by:
+- Translating RTL parameters into cycle-level latency and bandwidth estimates
+- Making AXI transaction behaviour and MRAM timing effects explicit
+- Providing a lightweight reference for evaluating MRAM suitability in AI, control, or embedded workloads
 
-The materials in this repository are intended for public reference, technical
-explanation, and design documentation. All files are published to provide a
-verifiable, timestamped public record of the work.
+The emphasis is on **architectural reasoning**, not educational walkthroughs or end-user tutorials.
 
-RTL Structure
--------------
-The design is organized into the following key components:
+---
 
-- `mcu_axi_master_model.sv`  
-  Behavioral AXI master modeling basic MCU-style read/write traffic.
+## What is evaluated
 
-- `dma_axi_master_model.sv`  
-  Behavioral AXI master modeling DMA-style memory access.
+This fork focuses on evaluating the following architectural trade-offs:
 
-- `axi_noc_2m2s.sv`  
-  AXI interconnect providing arbitration and address decoding between masters
-  and slave subsystems.
+- **MRAM read latency vs. effective throughput**  
+  Impact of MRAM read latency (`READ_LAT`) on sustained AXI burst bandwidth.
+
+- **Write delay vs. bus utilisation**  
+  Effect of write delay configuration on write bandwidth and transaction overlap.
+
+- **AXI bus width and burst structure**  
+  How data width and burst composition influence payload efficiency.
+
+- **Protocol overhead vs. usable bandwidth**  
+  Difference between raw AXI bandwidth and effective payload bandwidth once timing and protocol costs are accounted for.
+
+All calculations are derived from RTL-level assumptions rather than abstract models.
+
+---
+
+## Intended users
+
+This repository is intended for engineering audiences involved in SoC development, including:
+
+- **SoC architects**  
+  Evaluating MRAM-based subsystems against alternative memory architectures during early design exploration.
+
+- **Design verification (DV) engineers**  
+  Understanding expected performance envelopes and corner cases prior to full testbench development.
+
+- **System and firmware engineers**  
+  Reasoning about realistic memory access characteristics when planning boot flows, DMA usage, or accelerator workloads.
+
+It is not intended as a beginner tutorial or a complete verification environment.
+
+---
+
+## Performance summary (example)
+
+Example configuration:
+- Clock: 100 MHz
+- AXI data width: 64-bit
+- MRAM read latency: `READ_LAT = 2`
+- MRAM write delay: `write_delay_config = 8`
+
+Estimated results:
+- Write bandwidth ≈ 80 MB/s  
+- Read bandwidth ≈ 267 MB/s  
+
+A 4-beat write + 4-beat read transaction transfers 64 bytes in approximately 52 cycles (~520 ns), resulting in an effective payload bandwidth of ~123 MB/s.
+
+Detailed derivations and example calculations are provided in `Performance.md`.
+
+---
+
+## Repository contents
 
 - `axi_mram_slave.sv`  
-  AXI slave controller interfacing with the MRAM model.
+  Reference RTL for an AMBA-compatible MRAM AXI slave controller.
 
-- `mram_model.sv`  
-  Behavioral MRAM macro model used for functional simulation.
+- `Performance.md`  
+  Cycle-level performance estimation and example calculations.
 
-- `axi_ram_slave_model.sv`  
-  Simple SRAM-backed AXI slave model.
+- `soc_rtl/`  
+  SoC-level architectural block diagrams.
 
-- `soc_top_2m2s_noc_mram.sv`  
-  Top-level SoC integration connecting all masters, interconnect, and slaves.
+- `MRAM based AI SOC architecture.docx`  
+  Architectural context and system-level integration considerations.
 
+- `What is MRAM and Why It Matters in SoC Design.docx`  
+  Background material supporting architectural decision-making.
 
-Repository Contents
--------------------
+---
 
-axi_mram_slave.sv  
-A reference SystemVerilog module illustrating the structure of an AXI slave
-interface for an MRAM-based memory component. This file shows example read and
-write paths, address handling, and a conceptual MRAM-side request flow.  
-This RTL is provided for documentation and educational purposes.
+## Scope and limitations
 
-MRAM based AI SOC architecture.docx  
-A document describing a high-level SoC architecture that integrates MRAM within
-an AI-oriented system. It discusses design considerations, memory roles, and
-how MRAM can be placed within an SoC memory hierarchy.
+This repository is intended for **early-stage architectural evaluation**.  
+It does not replace:
+- Full RTL simulation
+- Power sign-off or silicon measurement
+- Formal performance validation
 
-What is MRAM and Why It Matters in SoC Design.docx  
-A technical note providing an overview of MRAM fundamentals and its relevance to
-modern SoC design, including endurance, retention characteristics, and possible
-usage scenarios.
+Instead, it provides a transparent and reproducible way to narrow design choices and identify potential risks early in the SoC design cycle.
 
-README.md  
-This file.
+---
 
-Purpose
--------
+## Related technical article
 
-The purpose of this repository is to publish publicly accessible MRAM-related
-design documentation and example RTL for reference. All materials reflect design
-concepts and explanations for learning, architectural discussion, and design
-traceability.
-
-Current Status
---------------
-
-This repository includes documentation and a conceptual RTL reference module.
-It does not include verification environments, testbenches, or synthesis-ready
-integrated components.
-
-Planned Additions
------------------
-
-Possible future updates may include:
-- Additional explanatory notes or diagrams
-- Minor refinements to documentation structure
-
-Versioning
-----------
-
-v1.0.0 – Initial public release (documentation, reference AXI MRAM Slave and example MRAM-Based SOC RTL)
-
-Contact
--------
-
-For questions or clarifications, please open an Issue on GitHub.
+Designing an AMBA-Compatible MRAM AXI Slave Controller for Modern SoCs  
+https://medium.com/@ace.lin0121/designing-an-amba-compatible-mram-axi-slave-controller-for-modern-socs-3cade20bce41
